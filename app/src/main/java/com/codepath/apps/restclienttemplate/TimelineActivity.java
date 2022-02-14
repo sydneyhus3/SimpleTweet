@@ -35,7 +35,22 @@ public class TimelineActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
 
-        client = TwitterApp.getRestClient(this);
+       TwitterClient client = TwitterApp.getRestClient(this);
+       client.getHomeTimeline(1, new JsonHttpResponseHandler() {
+           @Override
+           public void onSuccess(int statusCode, Headers headers, JSON json) {
+               try {
+                   json.jsonArray.getJSONObject(0).getLong("id");
+               } catch (JSONException e) {
+                   e.printStackTrace();
+               }
+           }
+
+           @Override
+           public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+
+           }
+       });
 
         swipeContainer = findViewById(R.id.swipeContainer);
 
@@ -92,11 +107,11 @@ public class TimelineActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.e(TAG, "onFailure for loadMoreData!", throwable);
             }
-        }, tweets.get(tweets.size() - 1).id);
+        }, (int) tweets.get(tweets.size() - 1).id);
     }
 
     private void populateHomeTimeline() {
-        client.getHomeTimeline(new JsonHttpResponseHandler() {
+        client.getHomeTimeline(1, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
                 Log.i(TAG, "onSuccess!" + json.toString());
